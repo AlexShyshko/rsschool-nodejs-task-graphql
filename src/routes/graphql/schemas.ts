@@ -1,4 +1,9 @@
 import { Type } from '@fastify/type-provider-typebox';
+import { MemberTypeId, MemberTypeType } from './types/member-type.js';
+import { PostType } from './types/post.js';
+
+
+import { UserType } from './types/user.js';
 import {
   GraphQLObjectType,
   GraphQLString,
@@ -32,74 +37,111 @@ export const createGqlResponseSchema = {
 
 /* TASK START */
 
-interface BaseQueryArguments {
-    id: string;
-}
-interface MemberTypeQueryArguments {
-    id: 'BASIC' | 'BUSINESS';
-}
-const MemberType_GQL = new GraphQLObjectType({
-    name: 'MemberType_GQL',
-    fields: () => ({
-        id: { type: GraphQLString },
-        discount: { type: GraphQLFloat },
-        postsLimitPerMonth: { type: GraphQLInt },
-    })
-});
-const Post_GQL = new GraphQLObjectType({
-    name: 'Post_GQL',
-    fields: () => ({
-        id: { type: GraphQLID },
-        title: { type: GraphQLID },
-        content: { type: GraphQLID },
-        authorId: { type: GraphQLID },
-    })
-});
+interface RequiredArguments {
+  memberTypeId_REQUIRED?: string;
+  postId_REQUIRED?: string;
+  profileId_REQUIRED?: string;
+  userId_REQUIRED?: string;
+};
+
+// interface PostBodyArguments_POST {
+//     title: string;
+//     content: string;
+//     authorId: string;
+// }
+// interface PostBodyArguments_Patch {
+//     title?: string;
+//     content?: string;
+// }
+
+// const Post_Mutation_POST = new GraphQLObjectType({
+//     name: 'Post_Mutation_POST',
+//     fields: () => ({
+//         title: { type: new GraphQLNonNull(GraphQLID) },
+//         content: { type: new GraphQLNonNull(GraphQLID) },
+//         authorId: { type: new GraphQLNonNull(GraphQLID) },
+//     })
+// });
 
 const Query_GQL = new GraphQLObjectType({
   name: 'Query_GQL',
-  fields: () => ({
+  fields: {
 
-    GET_MemberTypes: {
-      type: new GraphQLList(MemberType_GQL),
+    'GET__member_types': {
+      type: new GraphQLList(MemberTypeType),
 
-      resolve: async (_parent, args, context: PrismaClient, _info) => {
+      resolve: async (_parent, _args, context: PrismaClient, _info) => {
         return context.memberType.findMany();
       }
     },
 
-    GET_MemberTypes_memberTypeId: {
-      type: MemberType_GQL,
+    'GET__member_types__memberTypeId': {
+      type: MemberTypeType,
 
       args: {
-        id: { type: new GraphQLNonNull(GraphQLString) },
+        memberTypeId_REQUIRED: { type: new GraphQLNonNull(MemberTypeId) },
       },
 
-      resolve: async (_parent, args: MemberTypeQueryArguments, context: PrismaClient, _info) => {
-        const id = args.id;
+      resolve: async (_parent, args: RequiredArguments, context: PrismaClient, _info) => {
         return context.memberType.findUnique({
-          where: { id },
+          where: { id: args.memberTypeId_REQUIRED },
         });
       }
     },
 
-    GET_Posts: {
-      type: new GraphQLList(Post_GQL),
+    'GET__posts': {
+      type: new GraphQLList(PostType),
 
-      resolve: async (_parent, args, context: PrismaClient, _info) => {
+      resolve: async (_parent, _args, context: PrismaClient, _info) => {
         return context.post.findMany();
       }
     },
 
-    // POST_Posts: {},
+    'GET__posts__postId': {
+      type: PostType,
 
-    // GET_Posts_postId: {},
+      args: {
+        postId_REQUIRED: { type: new GraphQLNonNull(GraphQLID) },
+      },
+      
+      resolve: async (_parent, args: RequiredArguments, context: PrismaClient, _info) => {
+        return context.post.findUnique({
+          where: { id: args.postId_REQUIRED },
+        });
+      }
+    },
 
-  })
+  },
+});
+
+const Mutation_GQL = new GraphQLObjectType({
+  name: 'Mutation_GQL',
+  fields: {
+
+    // 'POST__posts': {
+    //   type: PostType,
+
+    //   args: {
+
+    //   },
+
+    //   resolve: async (_parent, args: PostBodyArguments_POST, context: PrismaClient, _info) => {
+    //     return await context.post.create({
+    //       data: args,
+    //     });
+    //   },
+
+    // },
+
+    //'PATCH__posts__postId'
+    //'DELETE__posts__postId'
+
+  },
 });
 
 const Schema_GQL = new GraphQLSchema({
   query: Query_GQL,
+  mutation: Mutation_GQL,
 });
 
 export { Schema_GQL };

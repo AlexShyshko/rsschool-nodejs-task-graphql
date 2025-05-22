@@ -1,19 +1,14 @@
-import { GraphQLObjectType, GraphQLString, GraphQLFloat, GraphQLInt } from 'graphql';
+import {
+    GraphQLEnumType,
+    GraphQLObjectType,
+    GraphQLFloat,
+    GraphQLInt,
+    GraphQLList,
+} from 'graphql';
+import { MemberTypeIdConfig, MemberTypeConfig } from './member-type-generic.js'
+import { ProfileType } from './profile.js';
 
-interface MemberType {
-    id: 'BASIC' | 'BUSINESS';
-    discount: number;
-    postsLimitPerMonth: number;
-}
+const MemberTypeId = new GraphQLEnumType(MemberTypeIdConfig);
+const MemberTypeType = new GraphQLObjectType(MemberTypeConfig);
 
-const MemberType_GQL = new GraphQLObjectType({
-    name: 'MemberType_GQL',
-    fields: () => ({
-        id: { type: GraphQLString },
-        discount: { type: GraphQLFloat },
-        postsLimitPerMonth: { type: GraphQLInt },
-    })
-});
-
-export type { MemberType };
-export { MemberType_GQL };
+export { MemberTypeId, MemberTypeType };
