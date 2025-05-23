@@ -4,8 +4,8 @@ import {
     GraphQLInt,
 } from 'graphql';
 import { UUIDType } from './uuid.js';
-import { getUserType } from './user.js';
-import { getMemberTypeType } from './member-type.js';
+import { getUserId, getUserType } from './user.js';
+import { getMemberTypeId, getMemberTypeType } from './member-type.js';
 
 let getProfileType: () => GraphQLObjectType<unknown, unknown>;
 const setProfileTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getProfileType = getter };
@@ -16,9 +16,9 @@ const profileTypeConfig = {
         isMale: { type: GraphQLBoolean },
         yearOfBirth: { type: GraphQLInt },
         user: { type: getUserType() },
-        userId: { type: getUserType().getFields().id.type  },
+        userId: { type: getUserId() },
         memberType: { type: getMemberTypeType() },
-        memberTypeId: { type: getMemberTypeType().getFields().id.type },
+        memberTypeId: { type: getMemberTypeId() },
     }),
 };
 const ProfileType = new GraphQLObjectType(profileTypeConfig);
