@@ -1,3 +1,4 @@
+
 import {
     GraphQLEnumType,
     GraphQLObjectType,
@@ -5,10 +6,32 @@ import {
     GraphQLInt,
     GraphQLList,
 } from 'graphql';
-import { MemberTypeIdConfig, MemberTypeConfig } from './member-type-generic.js'
-import { ProfileType } from './profile.js';
+import { getProfileType } from './profile.js';
 
+let getMemberTypeId: () => GraphQLEnumType;
+const setMemberTypeIdGetter = (getter: () => GraphQLEnumType) => { getMemberTypeId = getter };
+const MemberTypeIdConfig = {
+    name: 'MemberTypeId',
+    values: {
+        BASIC: { value: 'BASIC' },
+        BUSINESS: { value: 'BUSINESS' },
+    },
+};
 const MemberTypeId = new GraphQLEnumType(MemberTypeIdConfig);
-const MemberTypeType = new GraphQLObjectType(MemberTypeConfig);
+setMemberTypeIdGetter(() => { return MemberTypeId });
 
-export { MemberTypeId, MemberTypeType };
+let getMemberTypeType: () => GraphQLObjectType<unknown, unknown>;
+const setMemberTypeTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getMemberTypeType = getter };
+const memberTypeTypeConfig = {
+    name: 'MemberTypeType',
+    fields: () => ({
+        id: { type: MemberTypeId },
+        discount: { type: GraphQLFloat },
+        postsLimitPerMonth: { type: GraphQLInt },
+        profiles: { type: new GraphQLList(getProfileType()) },
+    }),
+};
+const MemberTypeType = new GraphQLObjectType(memberTypeTypeConfig);
+setMemberTypeTypeGetter(() => { return MemberTypeType });
+
+export { getMemberTypeId, getMemberTypeType };

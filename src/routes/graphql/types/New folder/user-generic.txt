@@ -1,4 +1,3 @@
-
 import {
     GraphQLObjectType,
     GraphQLString,
@@ -17,7 +16,12 @@ import { UUIDType } from './uuid.js';
 let getProfileType: () => GraphQLObjectType<unknown, unknown>;
 let getPostType: () => GraphQLObjectType<unknown, unknown>;
 let getSubscribersOnAuthorsType: () => GraphQLObjectType<unknown, unknown>;
+
+
+
 let getUserType: () => GraphQLObjectType<unknown, unknown>;
+
+
 
 /* ∨ Crutch to avoid circular dependencies ∨ */
 const UserTypeConfig = {
@@ -39,6 +43,8 @@ const UserTypeConfig = {
 const setProfileTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getProfileType = getter; };
 const setPostTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getPostType = getter; };
 const setSubscribersOnAuthorsTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getSubscribersOnAuthorsType = getter; };
+
+
 const setUserTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getUserType = getter; };
 
 export { UserTypeConfig, setProfileTypeGetter, setPostTypeGetter, setSubscribersOnAuthorsTypeGetter, setUserTypeGetter };

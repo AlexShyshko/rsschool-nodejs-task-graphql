@@ -1,18 +1,19 @@
-import {
-    GraphQLObjectType,
-} from 'graphql';
-import { UserTypeConfig } from './user-generic.js';
 
-const UserType = new GraphQLObjectType(UserTypeConfig);
+import { GraphQLObjectType } from 'graphql';
+import { getUserType } from './user.js';
 
-const SubscribersOnAuthorsType = new GraphQLObjectType({
-  name: 'ProfileType',
-  fields: () => ({
-    subscriber: { type: UserType },
-    subscriberId: { type: UserType.getFields().id.type },
-    author: { type: UserType },
-    authorId: { type: UserType.getFields().id.type },
-  }),
-});
+let getSubscribersOnAuthorsType: () => GraphQLObjectType<unknown, unknown>;
+const setSubscribersOnAuthorsTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getSubscribersOnAuthorsType = getter };
+const subscribersOnAuthorsConfig = {
+    name: 'SubscribersOnAuthorsType',
+    fields: () => ({
+        subscriber: { type: getUserType() },
+        subscriberId: { type: getUserType().getFields().id.type },
+        author: { type: getUserType() },
+        authorId: { type: getUserType().getFields().id.type },
+    }),
+};
+const SubscribersOnAuthorsType = new GraphQLObjectType(subscribersOnAuthorsConfig);
+setSubscribersOnAuthorsTypeGetter(() => { return SubscribersOnAuthorsType });
 
-export { SubscribersOnAuthorsType };
+export { getSubscribersOnAuthorsType };

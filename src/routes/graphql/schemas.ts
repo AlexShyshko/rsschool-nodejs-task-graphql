@@ -1,9 +1,11 @@
 import { Type } from '@fastify/type-provider-typebox';
-import { MemberTypeId, MemberTypeType } from './types/member-type.js';
-import { PostType } from './types/post.js';
 
+import { getUserType } from './types/user.js';
+import { getMemberTypeId, getMemberTypeType } from './types/member-type.js';
+import { getPostType } from './types/post.js';
+import { getProfileType } from './types/profile.js';
+import { getSubscribersOnAuthorsType } from './types/subscribers-on-authors.js';
 
-import { UserType } from './types/user.js';
 import {
   GraphQLObjectType,
   GraphQLString,
@@ -44,24 +46,12 @@ interface RequiredArguments {
   userId_REQUIRED?: string;
 };
 
-// interface PostBodyArguments_POST {
-//     title: string;
-//     content: string;
-//     authorId: string;
-// }
-// interface PostBodyArguments_Patch {
-//     title?: string;
-//     content?: string;
-// }
-
-// const Post_Mutation_POST = new GraphQLObjectType({
-//     name: 'Post_Mutation_POST',
-//     fields: () => ({
-//         title: { type: new GraphQLNonNull(GraphQLID) },
-//         content: { type: new GraphQLNonNull(GraphQLID) },
-//         authorId: { type: new GraphQLNonNull(GraphQLID) },
-//     })
-// });
+const UserType = getUserType();
+const MemberTypeId = getMemberTypeId();
+const MemberTypeType = getMemberTypeType();
+const PostType = getPostType();
+const ProfileType = getProfileType();
+const SubscribersOnAuthorsType = getSubscribersOnAuthorsType();
 
 const Query_GQL = new GraphQLObjectType({
   name: 'Query_GQL',
@@ -141,7 +131,7 @@ const Mutation_GQL = new GraphQLObjectType({
 
 const Schema_GQL = new GraphQLSchema({
   query: Query_GQL,
-  mutation: Mutation_GQL,
+  //mutation: Mutation_GQL,
 });
 
 export { Schema_GQL };

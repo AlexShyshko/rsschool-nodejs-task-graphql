@@ -1,7 +1,7 @@
 import {
     GraphQLObjectTypeConfig,
     GraphQLObjectType,
-    GraphQLString
+    GraphQLString,
 } from 'graphql';
 import { UUIDType } from './uuid.js';
 //import { UserTypeConfig } from './user-generic.js';
@@ -21,6 +21,8 @@ const PostTypeConfig = {
     }),
 };
 
+
 const setUserTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getUserType = getter; };
+
 
 export { PostTypeConfig, setUserTypeGetter };

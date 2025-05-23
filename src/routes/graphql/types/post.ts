@@ -1,12 +1,26 @@
 import {
-    GraphQLObjectTypeConfig,
     GraphQLObjectType,
     GraphQLString,
+    GraphQLInputObjectType,
 } from 'graphql';
-import { PostTypeConfig } from './post-generic.js';
 import { UUIDType } from './uuid.js';
-import { UserTypeConfig } from './user-generic.js';
+import { getUserType } from './user.js';
 
-const PostType = new GraphQLObjectType(PostTypeConfig);
+let getPostType: () => GraphQLObjectType<unknown, unknown>;
+const setPostTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getPostType = getter };
+const postTypeConfig = {
+    name: 'PostType',
+    fields: () => ({
+        id: { type: UUIDType },
+        title: { type: GraphQLString },
+        content: { type: GraphQLString },
+        author: { type: getUserType() },
+        authorId: { type: getUserType().getFields().id.type },
+    }),
+};
+const PostType = new GraphQLObjectType(postTypeConfig);
+setPostTypeGetter(() => { return PostType });
 
-export { PostType };
+//const 
+
+export { getPostType };

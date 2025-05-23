@@ -1,4 +1,3 @@
-
 import {
     GraphQLEnumType,
     GraphQLObjectType,
@@ -6,11 +5,10 @@ import {
     GraphQLInt,
     GraphQLList,
 } from 'graphql';
+import { ProfileType } from './profile.js';
 
-// Define getter function for ProfileType to avoid circular dependency
 let getProfileType: () => GraphQLObjectType<unknown, unknown>;
 
-// Define MemberTypeIdConfig
 const MemberTypeIdConfig = {
     name: 'MemberTypeId',
     values: {
@@ -19,19 +17,17 @@ const MemberTypeIdConfig = {
     },
 };
 
-// Define MemberTypeConfig
 const MemberTypeConfig = {
     name: 'MemberTypeType',
     fields: () => ({
         id: { type: new GraphQLEnumType(MemberTypeIdConfig) },
         discount: { type: GraphQLFloat },
         postsLimitPerMonth: { type: GraphQLInt },
+        //profiles: { type: new GraphQLList(ProfileType) },
         profiles: { type: new GraphQLList(getProfileType()) },
     }),
 };
 
-// Setter function to inject ProfileType getter
 const setProfileTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getProfileType = getter; };
 
-// Export configurations and setter
-export { MemberTypeIdConfig, MemberTypeConfig, setProfileTypeGetter };
+export { MemberTypeIdConfig, MemberTypeConfig, setProfileTypeGetter  };
