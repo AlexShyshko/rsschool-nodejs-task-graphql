@@ -1,22 +1,19 @@
 import { Type } from '@fastify/type-provider-typebox';
 
-import { getUserId, getUserType } from './types/user.js';
+import { getUserId, getUserType, getUserPostInputType, getUserPatchInputType } from './types/user.js';
 import { getMemberTypeId, getMemberTypeType } from './types/member-type.js';
 import { getPostId, getPostType, getPostPostInputType, getPostPatchInputType } from './types/post.js';
-import { getProfileType } from './types/profile.js';
-import { getSubscribersOnAuthorsType } from './types/subscribers-on-authors.js';
+import { getProfileId, getProfileType, getProfilePostInputType, getProfilePatchInputType } from './types/profile.js';
 
 import {
   GraphQLObjectType,
-  GraphQLString,
-  GraphQLFloat,
-  GraphQLInt,
   GraphQLSchema,
   GraphQLList,
   GraphQLNonNull,
-  GraphQLBoolean,
+  GraphQLString,
 } from 'graphql';
 import { PrismaClient, Prisma } from '@prisma/client';
+
 
 export const gqlResponseSchema = Type.Partial(
   Type.Object({
@@ -39,168 +36,410 @@ export const createGqlResponseSchema = {
 
 /* TASK START */
 
-interface RequiredArguments {
-  memberTypeId?: string;
-  postId?: string;
-  profileId?: string;
-  userId?: string;
-};
-interface InputBodyArguments {
-  title?: string;
-  content?: string;
-  authorId?: string;
-};
-interface InputBody {
-  body: InputBodyArguments;
-};
-interface InputBodyWithArguments extends RequiredArguments, InputBody {};
-
 const UserId = getUserId();
-const UserType = getUserType();
-const MemberTypeId = getMemberTypeId();
-const MemberTypeType = getMemberTypeType();
-const PostId = getPostId();
-const PostType = getPostType();
-const PostPostInputType = getPostPostInputType();
-const PostPatchInputType = getPostPatchInputType();
-const ProfileType = getProfileType();
-const SubscribersOnAuthorsType = getSubscribersOnAuthorsType();
+const User = getUserType();
+const CreateUserInput = getUserPostInputType();
+const ChangeUserInput = getUserPatchInputType();
 
-const Query_GQL = new GraphQLObjectType({
-  name: 'Query_GQL',
+const MemberTypeId = getMemberTypeId();
+const MemberType = getMemberTypeType();
+
+const PostId = getPostId();
+const Post = getPostType();
+const CreatePostInput = getPostPostInputType();
+const ChangePostInput = getPostPatchInputType();
+
+const ProfileId = getProfileId();
+const Profile = getProfileType();
+const CreateProfileInput = getProfilePostInputType();
+const ChangeProfileInput = getProfilePatchInputType();
+
+const RootQueryType = new GraphQLObjectType({
+  name: 'RootQueryType',
   fields: {
 
-    'GET__member_types': {
-      type: new GraphQLList(MemberTypeType),
+    // GET /member-types/
+    'memberTypes': {
+      type: new GraphQLList(MemberType),
 
       resolve: async (_parent, _args, context: PrismaClient, _info) => {
         return context.memberType.findMany();
       }
     },
 
-    'GET__member_types__memberTypeId': {
-      type: MemberTypeType,
+    // GET /member-types/{memberTypeId}
+    'memberType': {
+      type: MemberType,
 
       args: {
-        memberTypeId: { type: new GraphQLNonNull(MemberTypeId) },
+        id: { type: new GraphQLNonNull(MemberTypeId) },
       },
 
-      resolve: async (_parent, args: RequiredArguments, context: PrismaClient, _info) => {
+      resolve: async (_parent, args: Prisma.MemberTypeMinAggregateOutputType, context: PrismaClient, _info) => {
         return context.memberType.findUnique({
-          where: { id: args.memberTypeId },
+          where: { id: args.id! },
         });
       }
     },
 
-    'GET__posts': {
-      type: new GraphQLList(PostType),
+
+    // GET /posts/
+    'posts': {
+      type: new GraphQLList(Post),
 
       resolve: async (_parent, _args, context: PrismaClient, _info) => {
         return context.post.findMany();
       }
     },
 
-    'GET__posts__postId': {
-      type: PostType,
+    // GET /posts/{postId}
+    'post': {
+      type: Post,
 
       args: {
-        postId: { type: new GraphQLNonNull(PostId) },
+        id: { type: new GraphQLNonNull(PostId) },
       },
       
-      resolve: async (_parent, args: RequiredArguments, context: PrismaClient, _info) => {
+      resolve: async (_parent, args: Prisma.PostMinAggregateOutputType, context: PrismaClient, _info) => {
         return context.post.findUnique({
-          where: { id: args.postId },
+          where: { id: args.id! },
         });
       }
     },
 
-    //GET__profiles
-    //GET__profiles__profileId
+    // GET /profiles/
+    'profiles': {
+      type: new GraphQLList(Profile),
 
-    //GET__stats__prisma
+      resolve: async (_parent, _args, context: PrismaClient, _info) => {
+        return context.profile.findMany();
+      }
+    },
 
-    //GET__users
-    //GET__users__userId
+    // GET /profiles/{profileId}
+    'profile': {
+      type: Profile,
 
-    
-    //GET__users__userId__posts
+      args: {
+        id: { type: new GraphQLNonNull(ProfileId) },
+      },
+      
+      resolve: async (_parent, args: Prisma.ProfileMinAggregateOutputType, context: PrismaClient, _info) => {
+        return context.profile.findUnique({
+          where: { id: args.id! },
+        });
+      }
+    },
 
-    //GET__users__userId__profile
+    // GET /users/
+    'users': {
+      type: new GraphQLList(User),
 
-    //GET__users__userId__subscribed_to_user
+      resolve: async (_parent, _args, context: PrismaClient, _info) => {
+        return context.user.findMany();
+      }
+    },
 
-    //GET__users__userId__user_subscribed_to
+    // GET /users/{userId}
+    'user': {
+      type: User,
+
+      args: {
+        id: { type: new GraphQLNonNull(UserId) },
+      },
+      
+      resolve: async (_parent, args: Prisma.UserMinAggregateOutputType, context: PrismaClient, _info) => {
+        const result = await context.user.findUnique({
+          where: { id: args.id! },
+        });
+        return result;
+      }
+    },
+
+    // GET /users/{userId}/posts/
+    'userPosts': {
+      type: new GraphQLList(Post),
+
+      args: {
+        id: { type: new GraphQLNonNull(UserId) },
+      },
+
+      resolve: async (_parent, args: Prisma.UserMinAggregateOutputType, context: PrismaClient, _info) => {
+        return context.post.findMany({
+          where: { authorId: args.id! },
+        });
+      }
+    },
+
+    // GET /users/{userId}/profile/
+    'userProfile': {
+      type: Profile,
+
+      args: {
+        id: { type: new GraphQLNonNull(UserId) },
+      },
+
+      resolve: async (_parent, args: Prisma.UserMinAggregateOutputType, context: PrismaClient, _info) => {
+        return context.profile.findUnique({
+          where: { userId: args.id! },
+        });
+      }
+    },
+
+    // GET /users/{userId}/subscribed-to-user/
+    'userSubscribers': {
+      type: new GraphQLList(User),
+
+      args: {
+        id: { type: new GraphQLNonNull(UserId) },
+      },
+
+      resolve: async (_parent, args: Prisma.UserMinAggregateOutputType, context: PrismaClient, _info) => {
+        const subscribers = await context.subscribersOnAuthors.findMany({
+            include: { subscriber: true, author: true },
+            where: { authorId: args.id! },
+        });
+        return subscribers.map(async (subscription) => {
+            return await context.user.findUnique({
+                include: { profile: true, posts: true, userSubscribedTo: true, subscribedToUser: true },
+                where: { id: subscription.subscriberId },
+            });
+        });
+      }
+    },
+
+    // GET /users/{userId}/user-subscribed-to
+    'userSubscriptions': {
+      type: new GraphQLList(User),
+
+      args: {
+        id: { type: new GraphQLNonNull(UserId) },
+      },
+
+      resolve: async (_parent, args: Prisma.UserMinAggregateOutputType, context: PrismaClient, _info) => {
+        const subscriptions = await context.subscribersOnAuthors.findMany({
+            include: { subscriber: true, author: true },
+            where: { subscriberId: args.id! },
+        });
+        return subscriptions.map(async (subscription) => {
+            return await context.user.findUnique({
+                include: { profile: true, posts: true, userSubscribedTo: true, subscribedToUser: true },
+                where: { id: subscription.authorId },
+            });
+        });
+      }
+    },
 
   },
 });
 
-const Mutation_GQL = new GraphQLObjectType({
-  name: 'Mutation_GQL',
+const Mutations = new GraphQLObjectType({
+  name: 'Mutations',
   fields: {
 
-    'POST__posts': {
-      type: PostType,
+    // POST /posts/
+    'createPost': {
+      type: Post,
 
       args: {
-        body: { type: new GraphQLNonNull(PostPostInputType) },
+        dto: { type: new GraphQLNonNull(CreatePostInput) },
       },
 
-      resolve: async (_parent, args: InputBody, context: PrismaClient, _info) => {
+      resolve: async (_parent, args: { dto: Prisma.PostCreateInput }, context: PrismaClient, _info) => {
         return await context.post.create({
-          data: args.body as Prisma.PostCreateInput,
+          data: args.dto,
         });
       },
 
     },
 
-    'PATCH__posts__postId': {
-      type: PostType,
+    // PATCH /posts/{postId}
+    'changePost': {
+      type: Post,
 
       args: {
-        postId: { type: new GraphQLNonNull(PostId) },
-        body: { type: new GraphQLNonNull(PostPatchInputType) },
+        id: { type: new GraphQLNonNull(PostId) },
+        dto: { type: new GraphQLNonNull(ChangePostInput) },
       },
 
-      resolve: async (_parent, args: InputBodyWithArguments, context: PrismaClient, _info) => {
+      resolve: async (_parent, args: { id: string; dto: Prisma.PostUpdateInput }, context: PrismaClient, _info) => {
         return await context.post.update({
-          where: { id: args.postId },
-          data: args.body,
+          where: { id: args.id },
+          data: args.dto,
         });
       },
 
     },
 
-    'DELETE__posts__postId': {
-      type: GraphQLBoolean,
+    // DELETE /posts/{postId}
+    'deletePost': {
+      type: GraphQLString,
 
       args: {
-        postId: { type: new GraphQLNonNull(PostId) },
+        id: { type: new GraphQLNonNull(PostId) },
       },
 
-      resolve: async (_parent, args: RequiredArguments, context: PrismaClient, _info) => {
-        return await context.post.delete({
-          where: { id: args.postId },
+      resolve: async (_parent, args: Prisma.PostMinAggregateOutputType, context: PrismaClient, _info) => {
+        const deletedRecord = await context.post.delete({
+          where: { id: args.id! },
+        });
+        return deletedRecord ? 'Record was deleted' : 'Record was not deleted';
+      },
+
+    },
+
+    // POST /profiles/
+    'createProfile': {
+      type: Profile,
+
+      args: {
+        dto: { type: new GraphQLNonNull(CreateProfileInput) },
+      },
+
+      resolve: async (_parent, args: { dto: Prisma.ProfileCreateInput }, context: PrismaClient, _info) => {
+        return await context.profile.create({
+          data: args.dto,
         });
       },
 
     },
 
-    // POST__profiles
-    // PATCH__profiles__profileId
-    // DELETE__profiles__profileId
+    // PATCH /profiles/{profileId}
+    'changeProfile': {
+      type: Profile,
 
-    // POST__users
-    // PATCH__users__userId
-    // DELETE__profiles__userId
+      args: {
+        id: { type: new GraphQLNonNull(ProfileId) },
+        dto: { type: new GraphQLNonNull(ChangeProfileInput) },
+      },
 
-    // POST__users__userId__user_subscribed_to
-    // DELETE__users__userId__user_subscribed_to__authorId
+      resolve: async (_parent, args: { id: string; dto: Prisma.ProfileUpdateInput }, context: PrismaClient, _info) => {
+        return await context.profile.update({
+          where: { id: args.id },
+          data: args.dto,
+        });
+      },
+
+    },
+
+    // DELETE /profiles/{profileId}
+    'deleteProfile': {
+      type: GraphQLString,
+
+      args: {
+        id: { type: new GraphQLNonNull(ProfileId) },
+      },
+
+      resolve: async (_parent, args: Prisma.ProfileMinAggregateOutputType, context: PrismaClient, _info) => {
+        const deletedRecord = await context.profile.delete({
+          where: { id: args.id! },
+        });
+        return deletedRecord ? 'Record was deleted' : 'Record was not deleted';
+      },
+
+    },
+
+    // POST /users/
+    'createUser': {
+      type: User,
+
+      args: {
+        dto: { type: new GraphQLNonNull(CreateUserInput) },
+      },
+
+      resolve: async (_parent, args: { dto: Prisma.UserCreateInput }, context: PrismaClient, _info) => {
+        return await context.user.create({
+          data: args.dto,
+        });
+      },
+
+    },
+
+    // PATCH /users/{userId}
+    'changeUser': {
+      type: User,
+
+      args: {
+        id: { type: new GraphQLNonNull(UserId) },
+        dto: { type: new GraphQLNonNull(ChangeUserInput) },
+      },
+
+      resolve: async (_parent, args: { id: string; dto: Prisma.UserUpdateInput }, context: PrismaClient, _info) => {
+        return await context.user.update({
+          where: { id: args.id },
+          data: args.dto,
+        });
+      },
+
+    },
+
+    // DELETE /users/{userId}
+    'deleteUser': {
+      type: GraphQLString,
+
+      args: {
+        id: { type: new GraphQLNonNull(UserId) },
+      },
+
+      resolve: async (_parent, args: Prisma.UserMinAggregateOutputType, context: PrismaClient, _info) => {
+        const deletedRecord = await context.user.delete({
+          where: { id: args.id! },
+        });
+        return deletedRecord ? 'Record was deleted' : 'Record was not deleted';
+      },
+
+    },
+
+    // POST /users/{userId}/user-subscribed-to/
+    'subscribeTo': {
+      type: GraphQLString,
+
+      args: {
+        userId: { type: new GraphQLNonNull(UserId) },
+        authorId: { type: new GraphQLNonNull(UserId) },
+      },
+
+      resolve: async (_parent, args: { userId: string; authorId: string }, context: PrismaClient, _info) => {
+        const createdRecord = await context.subscribersOnAuthors.create({
+          data: {
+            subscriberId: args.userId,
+            authorId: args.authorId,
+          },
+        });
+        return createdRecord ? 'User was subscribed' : 'User was not subscribed';
+      },
+
+    },
+
+    // DELETE /users/{userId}/user-subscribed-to/{authorId}
+    'unsubscribeFrom': {
+      type: GraphQLString,
+
+      args: {
+        userId: { type: new GraphQLNonNull(UserId) },
+        authorId: { type: new GraphQLNonNull(UserId) },
+      },
+
+      resolve: async (_parent, args: { userId: string; authorId: string }, context: PrismaClient, _info) => {
+        const deletedRecord = await context.subscribersOnAuthors.delete({
+          where: {
+            subscriberId_authorId: {
+              subscriberId: args.userId,
+              authorId: args.authorId,
+            },
+          },
+        });
+        return deletedRecord ? 'User was unsubscribed' : 'User was not unsubscribed';
+      },
+
+    },
+
   },
 });
 
 const Schema_GQL = new GraphQLSchema({
-  query: Query_GQL,
-  mutation: Mutation_GQL,
+  query: RootQueryType,
+  mutation: Mutations,
 });
 
 export { Schema_GQL };

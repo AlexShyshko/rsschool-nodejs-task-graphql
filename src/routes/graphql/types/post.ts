@@ -5,7 +5,7 @@ import {
     GraphQLScalarType,
 } from 'graphql';
 import { UUIDType } from './uuid.js';
-import { getUserId, getUserType } from './user.js';
+import { getUserId/*, getUserType*/ } from './user.js';
 
 let getPostId: () => GraphQLScalarType<string | undefined, string>;
 const setPostIdGetter = (getter: () => GraphQLScalarType<string | undefined, string>) => { getPostId = getter };
@@ -15,41 +15,41 @@ setPostIdGetter(() => { return PostId });
 let getPostType: () => GraphQLObjectType<unknown, unknown>;
 const setPostTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getPostType = getter };
 const postTypeConfig = {
-    name: 'PostType',
+    name: 'Post',
     fields: () => ({
         id: { type: PostId },
         title: { type: GraphQLString },
         content: { type: GraphQLString },
-        author: { type: getUserType() },
-        authorId: { type: getUserId() },
+        // author: { type: getUserType() },
+        // authorId: { type: getUserId() },
     }),
 };
-const PostType = new GraphQLObjectType(postTypeConfig);
-setPostTypeGetter(() => { return PostType });
+const Post = new GraphQLObjectType(postTypeConfig);
+setPostTypeGetter(() => { return Post });
 
 let getPostPostInputType: () => GraphQLInputObjectType;
 const setPostPostInputTypeGetter = (getter: () => GraphQLInputObjectType) => { getPostPostInputType = getter };
 const postPostInputTypeConfig = {
-    name: 'PostPostInputType',
+    name: 'CreatePostInput',
     fields: () => ({
         title: { type: GraphQLString },
         content: { type: GraphQLString },
         authorId: { type: getUserId() },
     }),
 };
-const PostPostInputType = new GraphQLInputObjectType(postPostInputTypeConfig);
-setPostPostInputTypeGetter(() => { return PostPostInputType });
+const CreatePostInput = new GraphQLInputObjectType(postPostInputTypeConfig);
+setPostPostInputTypeGetter(() => { return CreatePostInput });
 
 let getPostPatchInputType: () => GraphQLInputObjectType;
 const setPostPatchInputTypeGetter = (getter: () => GraphQLInputObjectType) => { getPostPatchInputType = getter };
 const postPatchInputTypeConfig = {
-    name: 'PostPatchInputType',
+    name: 'ChangePostInput',
     fields: () => ({
         title: { type: GraphQLString },
         content: { type: GraphQLString },
     }),
 };
-const PostPatchInputType = new GraphQLInputObjectType(postPatchInputTypeConfig);
-setPostPatchInputTypeGetter(() => { return PostPatchInputType });
+const ChangePostInput = new GraphQLInputObjectType(postPatchInputTypeConfig);
+setPostPatchInputTypeGetter(() => { return ChangePostInput });
 
 export { getPostId, getPostType, getPostPostInputType, getPostPatchInputType };
