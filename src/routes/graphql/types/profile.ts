@@ -8,14 +8,21 @@ import {
 import { UUIDType } from './uuid.js';
 import { getUserId/*, getUserType*/ } from './user.js';
 import { getMemberTypeId, getMemberTypeType } from './member-type.js';
+import DataLoader from 'dataloader';
+import { Prisma, MemberType } from '@prisma/client';
+
+let memberTypeLoader: DataLoader<string, MemberType>;
+function setMemberTypeLoader(loader: DataLoader<string, MemberType>) {
+    memberTypeLoader = loader;
+}
 
 let getProfileId: () => GraphQLScalarType<string | undefined, string>;
 const setProfileIdGetter = (getter: () => GraphQLScalarType<string | undefined, string>) => { getProfileId = getter };
 const ProfileId = UUIDType;
 setProfileIdGetter(() => { return ProfileId });
 
-let getProfileType: () => GraphQLObjectType<unknown, unknown>;
-const setProfileTypeGetter = (getter: () => GraphQLObjectType<unknown, unknown>) => { getProfileType = getter };
+let getProfileType: () => GraphQLObjectType<Prisma.UserCreateInput, unknown>;
+const setProfileTypeGetter = (getter: () => GraphQLObjectType<Prisma.UserCreateInput, unknown>) => { getProfileType = getter };
 const profileTypeConfig = {
     name: 'Profile',
     fields: () => ({
@@ -24,7 +31,14 @@ const profileTypeConfig = {
         yearOfBirth: { type: GraphQLInt },
         // user: { type: getUserType() },
         // userId: { type: getUserId() },
-        memberType: { type: getMemberTypeType() },
+        memberType: {
+            type: getMemberTypeType(),
+            resolve: async (parent: Prisma.UserCreateInput, _args, _context, _info) => {
+                const memberTypeBatch = await memberTypeLoader.load(parent.id as string);
+                //memberTypeLoader.prime(parent.id!, profileBatch);
+                return memberTypeBatch;
+            },
+        },
         // memberTypeId: { type: getMemberTypeId() },
     }),
 };
@@ -58,4 +72,4 @@ const profilePatchInputTypeConfig = {
 const ChangeProfileInput = new GraphQLInputObjectType(profilePatchInputTypeConfig);
 setProfilePatchInputTypeGetter(() => { return ChangeProfileInput });
 
-export { getProfileId, getProfileType, getProfilePostInputType, getProfilePatchInputType };
+export { getProfileId, getProfileType, getProfilePostInputType, getProfilePatchInputType, setMemberTypeLoader };
