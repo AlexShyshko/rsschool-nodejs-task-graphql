@@ -46,3 +46,11 @@ Useful things:
 - Reset database: npx prisma migrate reset (includes seeding)  
 - Test REST API (Swagger): [::1]:8000/docs  
 - Use a GraphQL [client](https://learning.postman.com/docs/sending-requests/graphql/graphql-overview/) with [introspection](https://graphql.org/learn/introspection/) support for testing.  
+
+Scripts to add to package.json:
+```
+"database_apply_migrations": "npx prisma migrate deploy",
+"database_seed": "npx prisma db seed",
+"database_gui": "npx prisma studio",
+"database_reset": "npx prisma migrate reset"
+```
