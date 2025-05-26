@@ -25,11 +25,7 @@
     "build:ts": "tsc",
     "watch:ts": "tsc -w",
     "dev": "npm run build:ts && concurrently -k -p \"[{name}]\" -n \"TypeScript,App\" -c \"yellow.bold,cyan.bold\" \"npm:watch:ts\" \"npm:dev:start\"",
-    "dev:start": "fastify start --ignore-watch=\".ts$ database.db\" -w -l info -P dist/app.js",
-    "database_apply_migrations": "npx prisma migrate deploy",
-    "database_seed": "npx prisma db seed",
-    "database_gui": "npx prisma studio",
-    "database_reset": "npx prisma migrate reset"
+    "dev:start": "fastify start --ignore-watch=\".ts$ database.db\" -w -l info -P dist/app.js"
   },
   "engines": {
     "node": ">=22.0.0"

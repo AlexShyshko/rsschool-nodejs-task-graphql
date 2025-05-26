@@ -172,9 +172,13 @@ function getRootQueryType(
 
         resolve: async (_parent, _args, context: PrismaClient, info: GraphQLResolveInfo) => {
 
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           let isIncludesProfile = false;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           let isIncludesPosts = false;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           let isIncludesUserSubscribedTo = false;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           let isIncludesSubscribedToUser = false;
 
           const parsedInfo = parseResolveInfo(info);

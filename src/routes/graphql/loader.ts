@@ -1,39 +1,6 @@
 import { PrismaClient, Profile, Post, User, MemberType } from '@prisma/client';
 import DataLoader from 'dataloader';
 
-// let userLoader: DataLoader<string, User>;
-// function setUserLoader(loader: DataLoader<string, User>) {
-//     userLoader = loader;
-// }
-
-// function getUserLoader(prismaInstance: PrismaClient) {
-
-//     return new DataLoader<string, User>(async (usersIdArray) => {
-
-//         const loadedUsers: Array<User> = [];
-
-//         await prismaInstance.user.findMany({
-//             include: { profile: true, posts: true, userSubscribedTo: true, subscribedToUser: true },
-//             where: { id: { in: [...usersIdArray] } },
-//         }).then((queriedUsers) => {
-
-//             const mapUsers: Map<string, User> = new Map();
-//             queriedUsers.forEach((user) => {
-//                 mapUsers.set(user.id, user);
-//             });
-
-//             usersIdArray.forEach((userId) => {
-//                 loadedUsers.push(mapUsers.get(userId) as User);
-//             });
-
-//         });
-
-//         return loadedUsers;
-
-//     });
-
-// };
-
 function getProfileLoader(prismaInstance: PrismaClient) {
 
     return new DataLoader<string, Profile>(async (usersIdArray) => {
